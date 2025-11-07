@@ -19,6 +19,7 @@ const nextConfig = {
   },
   basePath: '/question-builder-tool', 
   assetPrefix: '/question-builder-tool/',
+  output: "export"
 }
 
 export default nextConfig
