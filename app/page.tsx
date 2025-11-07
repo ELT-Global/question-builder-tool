@@ -66,12 +66,13 @@ export default function QuestionAuthoringPage() {
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="flex  items-center justify-center ">
+            <div className="items- flex flex-col ">
               <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150}/>
+              <p className="text-xs text-muted-foreground m-0 p-0">Create and export exam questions</p>
             </div>
             <div className="">
-              <h1 className="text-lg font-semibold m-0 p-0">Question Authoring</h1>
-              <p className="text-sm text-muted-foreground m-0 p-0">Create and export exam questions</p>
+              {/* <h1 className="text-lg font-semibold m-0 p-0">Question Authoring</h1> */}
+              
             </div>
           </div>
 
