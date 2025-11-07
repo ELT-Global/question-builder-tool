@@ -17,6 +17,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  basePath: '/question-builder-tool', 
+  assetPrefix: '/question-builder-tool/',
 }
 
 export default nextConfig
