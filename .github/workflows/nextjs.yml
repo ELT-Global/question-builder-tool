@@ -20,6 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Install pnpm globally
+        run: npm install -g pnpm
+      
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
