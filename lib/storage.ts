@@ -10,16 +10,18 @@ const STORAGE_KEY = "question-authoring-draft"
 export interface StoredDraft {
   questions: Question[]
   timestamp: string
+  title?: string
 }
 
 /**
  * Save current draft to localStorage
  */
-export function saveDraft(questions: Question[]): void {
+export function saveDraft(questions: Question[], title?: string): void {
   try {
     const draft: StoredDraft = {
       questions,
       timestamp: new Date().toISOString(),
+      title,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
   } catch (error) {

@@ -6,14 +6,6 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
-import { Trash2, Plus, Info, RotateCcw, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,9 +16,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import type { ImageMeta, Option, Question, QuestionType, SubQuestion } from "@/lib/types"
+import { AlertTriangle, Info, Plus, RotateCcw, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { ImageUploader } from "./image-uploader"
 import { SubQuestionEditor } from "./sub-question-editor"
-import type { Question, QuestionType, Option, ImageMeta, SubQuestion } from "@/lib/types"
 
 interface QuestionEditorProps {
   question: Question
@@ -316,15 +316,15 @@ export function QuestionEditor({
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <Label htmlFor={`positive-${question.id}`}>
-                Positive Marks<span className="text-destructive">*</span>
+              Positive Marks<span className="text-destructive">*</span>
               </Label>
               <Input
-                id={`positive-${question.id}`}
-                type="number"
-                min="0"
-                step="0.5"
-                value={localQuestion.marks.positive}
-                onChange={(e) => updateMarks("positive", e.target.value)}
+              id={`positive-${question.id}`}
+              type="number"
+              min="0"
+              step="0.5"
+              value={localQuestion.marks.positive || ''}
+              onChange={(e) => updateMarks("positive", e.target.value)}
               />
             </div>
             <div>
@@ -332,13 +332,13 @@ export function QuestionEditor({
               <Input
                 id={`negative-${question.id}`}
                 type="number"
-                min="0"
+                // min="0"
                 step="0.5"
-                value={localQuestion.marks.negative || 0}
+                value={localQuestion.marks.negative || ''}
                 onChange={(e) => updateMarks("negative", e.target.value)}
               />
             </div>
-            {localQuestion.type === "mcq_single" && (
+            {localQuestion.type === "mcq_multiple" && (
               <div>
                 <Label htmlFor={`partial-${question.id}`}>Partial Marks</Label>
                 <Input
@@ -346,7 +346,7 @@ export function QuestionEditor({
                   type="number"
                   min="0"
                   step="0.5"
-                  value={localQuestion.marks.partial || 0}
+                  value={localQuestion.marks.partial || ""}
                   onChange={(e) => updateMarks("partial", e.target.value)}
                 />
               </div>
