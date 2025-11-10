@@ -113,53 +113,95 @@ export default function QuestionAuthoringPage() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/50">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col">
-              <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} />
-              <p className="m-0 p-0 text-xs text-muted-foreground">Create and export exam questions</p>
+        <div className="container mx-auto px-4 py-4">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col">
+                <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} />
+                <p className="m-0 p-0 text-xs text-muted-foreground">Create and export exam questions</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Button
+                title="Remove all questions"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsClearAllDialogOpen(true)}
+                disabled={questions.length === 0}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Clear All
+              </Button>
+              <Button title="Import questions from ZIP" variant="outline" size="sm" onClick={handleImportClick}>
+                <Upload className="mr-2 h-4 w-4" />
+                Import ZIP
+              </Button>
+              <Button
+                title="Download questions as ZIP"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsExportModalOpen(true)}
+                disabled={questions.length === 0}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export ZIP
+              </Button>
+              <Button onClick={createQuestion} size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Question
+              </Button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* <TooltipProvider>
-              <Tooltip content="Remove all questions"> */}
-                <Button
+          {/* Mobile Layout */}
+          <div className="md:hidden space-y-3">
+            <div className="flex items-center justify-center">
+              <div className="flex flex-col items-center">
+                <Image src="triple-i-logo.svg" alt="Logo" width={120} height={120} />
+                <p className="m-0 p-0 text-xs text-muted-foreground text-center">Create and export exam questions</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <Button
                 title="Remove all questions"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsClearAllDialogOpen(true)}
-                  disabled={questions.length === 0}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Clear All
-                </Button>
-              {/* </Tooltip>
-              <Tooltip content="Import questions from ZIP"> */}
-                <Button title="Import questions from ZIP" variant="outline" size="sm" onClick={handleImportClick}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import ZIP
-                </Button>
-              {/* </Tooltip>
-              <Tooltip content="Download questions as ZIP"> */}
-                <Button
-                  title="Download questions as ZIP"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsExportModalOpen(true)}
-                  disabled={questions.length === 0}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export ZIP
-                </Button>
-              {/* </Tooltip>
-              <Tooltip content="Add a new question"> */}
-                <Button onClick={createQuestion} size="sm">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Question
-                </Button>
-              {/* </Tooltip>
-            </TooltipProvider> */}
+                variant="outline"
+                size="sm"
+                onClick={() => setIsClearAllDialogOpen(true)}
+                disabled={questions.length === 0}
+                className="w-full"
+              >
+                <Trash2 className="mr-1 h-4 w-4" />
+                <span className="text-xs">Clear All</span>
+              </Button>
+              <Button 
+                title="Import questions from ZIP" 
+                variant="outline" 
+                size="sm" 
+                onClick={handleImportClick}
+                className="w-full"
+              >
+                <Upload className="mr-1 h-4 w-4" />
+                <span className="text-xs">Import</span>
+              </Button>
+              <Button
+                title="Download questions as ZIP"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsExportModalOpen(true)}
+                disabled={questions.length === 0}
+                className="w-full"
+              >
+                <Download className="mr-1 h-4 w-4" />
+                <span className="text-xs">Export</span>
+              </Button>
+              <Button onClick={createQuestion} size="sm" className="w-full">
+                <Plus className="mr-1 h-4 w-4" />
+                <span className="text-xs">Add Question</span>
+              </Button>
+            </div>
           </div>
         </div>
       </header>

@@ -7,11 +7,11 @@
 
 import { Button } from "@/components/ui/button"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import type { ImportState } from "@/lib/types"
 import { AlertCircle, CheckCircle2, FileArchive, Upload, X } from "lucide-react"
@@ -141,6 +141,9 @@ export function ImportModal({
                       onClick={(e) => {
                         e.stopPropagation()
                         setSelectedFile(null)
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = ""
+                        }
                       }}
                     >
                       <X className="mr-2 h-4 w-4" />
