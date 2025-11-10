@@ -1,26 +1,28 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { saveDraft, loadDraft, clearDraft } from "@/lib/storage"
+import { clearDraft, loadDraft, saveDraft } from "@/lib/storage"
 import type { Question } from "@/lib/types"
+import { useCallback, useEffect, useState } from "react"
 
 export function useQuestions() {
   const [questions, setQuestions] = useState<Question[]>([])
+  const [title, setTitle] = useState<string>("")
 
   // Load draft on mount
   useEffect(() => {
     const draft = loadDraft()
     if (draft) {
       setQuestions(draft.questions)
+      setTitle(draft.title || "")
     }
   }, [])
 
-  // Auto-save draft when questions change
+  // Auto-save draft when questions or title change
   useEffect(() => {
     if (questions.length > 0) {
-      saveDraft(questions)
+      saveDraft(questions, title)
     }
-  }, [questions])
+  }, [questions, title])
 
   // Create new question
   const createQuestion = useCallback(() => {
@@ -53,14 +55,31 @@ export function useQuestions() {
   // Clear all questions
   const clearAll = useCallback(() => {
     setQuestions([])
+    setTitle("")
     clearDraft()
   }, [])
 
+  // Replace all questions (used for import)
+  const replaceAllQuestions = useCallback((newQuestions: Question[], newTitle?: string) => {
+    setQuestions(newQuestions)
+    setTitle(newTitle || "")
+    saveDraft(newQuestions, newTitle)
+  }, [])
+
+  // Update title
+  const updateTitle = useCallback((newTitle: string) => {
+    setTitle(newTitle)
+    saveDraft(questions, newTitle)
+  }, [questions])
+
   return {
     questions,
+    title,
     createQuestion,
     updateQuestion,
     deleteQuestion,
     clearAll,
+    replaceAllQuestions,
+    updateTitle,
   }
 }

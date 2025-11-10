@@ -6,8 +6,7 @@
 
 "use client"
 
-import { useState } from "react"
-import { Download } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -16,23 +15,38 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Download } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface ExportModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onExport: (zipName: string) => Promise<void>
   questionCount: number
+  title?: string
 }
 
-export function ExportModal({ open, onOpenChange, onExport, questionCount }: ExportModalProps) {
+const createSlug = (text?: string): string => {
+  if (!text) return "questions"
+  return text.toLowerCase().replaceAll(/\s+/g, "-").replaceAll(/[^a-z0-9-]/g, "")
+}
+
+export function ExportModal({ open, onOpenChange, onExport, questionCount, title }: Readonly<ExportModalProps>) {
   const [zipName, setZipName] = useState(() => {
     const date = new Date().toISOString().slice(0, 10)
-    return `questions-${date}`
+    const titleSlug = createSlug(title)
+    return `${titleSlug}-${date}`
   })
   const [isExporting, setIsExporting] = useState(false)
+
+  // Update zip name when title changes
+  useEffect(() => {
+    const date = new Date().toISOString().slice(0, 10)
+    const titleSlug = createSlug(title)
+    setZipName(`${titleSlug}-${date}`)
+  }, [title, open])
 
   // Handle export button click
   const handleExport = async () => {
@@ -59,7 +73,7 @@ export function ExportModal({ open, onOpenChange, onExport, questionCount }: Exp
         <DialogHeader>
           <DialogTitle>Export Questions</DialogTitle>
           <DialogDescription>
-            Export {questionCount} question{questionCount !== 1 ? "s" : ""} to a ZIP file containing the questions data
+            Export {questionCount} question{questionCount === 1 ? "" : "s"} to a ZIP file containing the questions data
             and all uploaded images.
           </DialogDescription>
         </DialogHeader>

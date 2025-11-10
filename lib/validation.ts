@@ -54,9 +54,39 @@ export const exportDataSchema = z.object({
   meta: z.object({
     generatedAt: z.string(),
     version: z.string(),
+    title: z.string().optional(),
   }),
   questions: z.array(questionSchema),
 })
+
+// ZIP file validation constants
+export const MAX_ZIP_SIZE = 100 * 1024 * 1024 // 100 MB
+
+/**
+ * Validate ZIP file before processing
+ */
+export function validateZipFile(file: File): {
+  valid: boolean
+  error?: string
+} {
+  // Check file type
+  if (!file.type.includes("zip") && !file.name.endsWith(".zip")) {
+    return {
+      valid: false,
+      error: "Invalid file type. Please select a ZIP file.",
+    }
+  }
+
+  // Check file size
+  if (file.size > MAX_ZIP_SIZE) {
+    return {
+      valid: false,
+      error: `ZIP file too large. Maximum size is ${MAX_ZIP_SIZE / (1024 * 1024)}MB.`,
+    }
+  }
+
+  return { valid: true }
+}
 
 // File validation constants
 export const ALLOWED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "svg"]

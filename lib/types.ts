@@ -55,8 +55,36 @@ export interface ExportData {
   meta: {
     generatedAt: string
     version: string
+    title?: string // Title for the question set
   }
   questions: Question[]
+}
+
+// Import validation result
+export interface ImportValidationResult {
+  valid: boolean
+  errors: string[]
+  warnings?: string[]
+}
+
+// Import progress states
+export type ImportStage =
+  | "idle"
+  | "reading"
+  | "extracting"
+  | "validating-json"
+  | "validating-images"
+  | "processing"
+  | "storing"
+  | "complete"
+  | "error"
+
+// Import state for UI
+export interface ImportState {
+  stage: ImportStage
+  progress: number // 0-100
+  message: string
+  error?: string
 }
 
 // Map for storing actual File objects (client-side only)

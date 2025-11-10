@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { clearAllImagesFromDB, deleteImageFromDB, saveImageToDB } from "@/lib/indexeddb"
 import type { ImageFilesMap, Question } from "@/lib/types"
-import { saveImageToDB, deleteImageFromDB, clearAllImagesFromDB } from "@/lib/indexeddb"
+import { useCallback, useEffect, useState } from "react"
 
 export function useImageFiles(questions: Question[]) {
   const [imageFilesMap, setImageFilesMap] = useState<ImageFilesMap>(new Map())
@@ -74,12 +74,34 @@ export function useImageFiles(questions: Question[]) {
     })
   }, [])
 
+  const replaceAllImages = useCallback(async (newImageMap: ImageFilesMap) => {
+    // Clear existing images
+    await clearAllImagesFromDB().catch((error) => {
+      console.error("[v0] Failed to clear images from IndexedDB:", error)
+    })
+
+    // Set new image map
+    setImageFilesMap(newImageMap)
+
+    // Save all new images to IndexedDB
+    const savePromises: Promise<void>[] = []
+    for (const [imageId, file] of newImageMap) {
+      savePromises.push(
+        saveImageToDB(imageId, file).catch((error) => {
+          console.error(`[v0] Failed to save image ${imageId} to IndexedDB:`, error)
+        }),
+      )
+    }
+    await Promise.all(savePromises)
+  }, [])
+
   return {
     imageFilesMap,
     addImagesToMap,
     removeImageFromMap,
     removeImagesForQuestion,
     clearAllImages,
+    replaceAllImages,
     isLoadingImages,
   }
 }
