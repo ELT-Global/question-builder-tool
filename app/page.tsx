@@ -21,6 +21,7 @@ import { useImageFiles } from "@/hooks/use-image-files"
 import { useImport } from "@/hooks/use-import"
 import { useQuestions } from "@/hooks/use-questions"
 import { Download, Edit2, FileText, Plus, Trash2, Upload } from "lucide-react"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 
 export default function QuestionAuthoringPage() {
@@ -115,7 +116,7 @@ export default function QuestionAuthoringPage() {
         <div className="container mx-auto flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
-              {/* <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} /> */}
+              <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} />
               <p className="m-0 p-0 text-xs text-muted-foreground">Create and export exam questions</p>
             </div>
           </div>
