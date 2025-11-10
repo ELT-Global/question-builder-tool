@@ -6,16 +6,16 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
-import { Trash2, Plus, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
+import type { ImageMeta, Option, SubQuestion } from "@/lib/types"
+import { Info, Plus, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
 import { ImageUploader } from "./image-uploader"
-import type { SubQuestion, Option, ImageMeta } from "@/lib/types"
 
 interface SubQuestionEditorProps {
   subQuestion: SubQuestion
@@ -226,8 +226,8 @@ export function SubQuestionEditor({
               className="h-9"
             />
           </div>
-          {/* Only show partial marks for single answer MCQ */}
-          {localSubQuestion.type === "mcq_single" && (
+          {/* Only show partial marks for multiple answer MCQ */}
+          {localSubQuestion.type === "mcq_multiple" && (
             <div>
               <Label htmlFor={`partial-${subQuestion.id}`} className="text-sm">
                 Partial Marks

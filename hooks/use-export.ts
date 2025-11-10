@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import type { ImageFilesMap, Question } from "@/lib/types"
 import { buildZip, downloadBlob } from "@/lib/zip"
-import type { Question, ImageFilesMap } from "@/lib/types"
+import { useCallback, useState } from "react"
 
-export function useExport(questions: Question[], imageFilesMap: ImageFilesMap) {
+export function useExport(questions: Question[], imageFilesMap: ImageFilesMap, title?: string) {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
   const handleExport = useCallback(
@@ -14,10 +14,10 @@ export function useExport(questions: Question[], imageFilesMap: ImageFilesMap) {
         return
       }
 
-      const blob = await buildZip(questions, imageFilesMap)
+      const blob = await buildZip(questions, imageFilesMap, title)
       downloadBlob(blob, `${zipName}.zip`)
     },
-    [questions, imageFilesMap],
+    [questions, imageFilesMap, title],
   )
 
   return {

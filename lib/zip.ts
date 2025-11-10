@@ -4,15 +4,20 @@
  */
 
 import JSZip from "jszip"
-import type { Question, ExportData, ImageFilesMap } from "./types"
+import type { ExportData, ImageFilesMap, Question } from "./types"
 
 /**
  * Build a ZIP file containing questions JSON and all images in an images folder
  * @param questions - Array of questions to export
  * @param imageFilesMap - Map of image IDs to File objects
+ * @param title - Optional title for the question set
  * @returns Blob containing the ZIP file
  */
-export async function buildZip(questions: Question[], imageFilesMap: ImageFilesMap): Promise<Blob> {
+export async function buildZip(
+  questions: Question[],
+  imageFilesMap: ImageFilesMap,
+  title?: string,
+): Promise<Blob> {
   const zip = new JSZip()
 
   // Create export data structure
@@ -20,6 +25,7 @@ export async function buildZip(questions: Question[], imageFilesMap: ImageFilesM
     meta: {
       generatedAt: new Date().toISOString(),
       version: "1.0",
+      title,
     },
     questions,
   }
@@ -51,6 +57,6 @@ export function downloadBlob(blob: Blob, filename: string): void {
   link.download = filename
   document.body.appendChild(link)
   link.click()
-  document.body.removeChild(link)
+  link.remove()
   URL.revokeObjectURL(url)
 }
