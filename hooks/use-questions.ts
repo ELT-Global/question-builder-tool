@@ -21,6 +21,11 @@ export function useQuestions() {
   useEffect(() => {
     if (questions.length > 0) {
       saveDraft(questions, title)
+      console.log(`💾 Draft saved: ${questions.length} questions`)
+    } else {
+      // Clear draft when no questions exist
+      clearDraft()
+      console.log("🧹 Draft cleared (no questions)")
     }
   }, [questions, title])
 
@@ -45,14 +50,14 @@ export function useQuestions() {
     const newQuestion: Question = {
       id: crypto.randomUUID(),
       type: "mcq_single",
-      prompt: "",
+      question: "",
       options: [
         { id: crypto.randomUUID(), text: "", correct: false },
         { id: crypto.randomUUID(), text: "", correct: false },
       ],
-      marks: { positive: 1, negative: 0, partial: 0 },
+      marks: { correct: 1, wrong: 0, partial: 0 },
       images: [],
-      explanation: "",
+      solution: "",
     }
 
     setQuestions((prev) => [...prev, newQuestion])
@@ -66,7 +71,11 @@ export function useQuestions() {
 
   // Delete question
   const deleteQuestion = useCallback((questionId: string) => {
-    setQuestions((prev) => prev.filter((q) => q.id !== questionId))
+    setQuestions((prev) => {
+      const filtered = prev.filter((q) => q.id !== questionId)
+      console.log(`🗑️ Question deleted. Remaining: ${filtered.length}`)
+      return filtered
+    })
   }, [])
 
   // Clear all questions

@@ -117,39 +117,39 @@ function validateMarks(
 ) {
   const marks = question.marks
 
-  // Positive marks must be set and > 0
-  if (!marks.positive || marks.positive <= 0) {
+  // Correct marks must be set and > 0
+  if (!marks.correct || marks.correct <= 0) {
     errors.push({
       questionIndex,
       questionId,
       questionType,
-      field: "Positive Marks",
-      message: "Positive marks must be greater than 0",
+      field: "Correct Marks",
+      message: "Correct marks must be greater than 0",
       subQuestionIndex,
     })
   }
 
-  // Negative marks should be 0 or positive value (not negative)
-  if (marks.negative && marks.negative < 0) {
+  // Wrong marks should be 0 or positive value (not negative)
+  if (marks.wrong && marks.wrong < 0) {
     errors.push({
       questionIndex,
       questionId,
       questionType,
-      field: "Negative Marks",
-      message: "Negative marks should be 0 or positive value",
+      field: "Wrong Marks",
+      message: "Wrong marks should be 0 or positive value",
       subQuestionIndex,
     })
   }
 
   // Partial marks validation for multiple choice
   if (question.type === "mcq_multiple" && marks.partial) {
-    if (marks.partial < 0 || marks.partial > marks.positive) {
+    if (marks.partial < 0 || marks.partial > marks.correct) {
       errors.push({
         questionIndex,
         questionId,
         questionType,
         field: "Partial Marks",
-        message: "Partial marks should be between 0 and positive marks",
+        message: "Partial marks should be between 0 and correct marks",
         subQuestionIndex,
       })
     }
@@ -166,8 +166,8 @@ function validateSubQuestion(
   questionId: string,
   errors: ValidationError[],
 ) {
-  // Validate prompt
-  if (!subQuestion.prompt || subQuestion.prompt.trim() === "") {
+  // Validate question text
+  if (!subQuestion.question || subQuestion.question.trim() === "") {
     errors.push({
       questionIndex,
       questionId,
@@ -191,8 +191,8 @@ function validateSubQuestion(
 function validateQuestion(question: Question, questionIndex: number, errors: ValidationError[]) {
   const questionType = question.type
 
-  // Validate prompt
-  if (!question.prompt || question.prompt.trim() === "") {
+  // Validate question text
+  if (!question.question || question.question.trim() === "") {
     errors.push({
       questionIndex,
       questionId: question.id,

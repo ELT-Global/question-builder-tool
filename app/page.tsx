@@ -43,7 +43,6 @@ export default function QuestionAuthoringPage() {
     imageFilesMap,
     addImagesToMap,
     removeImageFromMap,
-    removeImagesForQuestion,
     clearAllImages,
     replaceAllImages,
     isLoadingImages,
@@ -97,7 +96,25 @@ export default function QuestionAuthoringPage() {
 
   // Handle question deletion with image cleanup
   const handleDeleteQuestion = (questionId: string) => {
-    removeImagesForQuestion(questionId)
+    // First, find the question to clean up its images
+    const question = questions.find((q) => q.id === questionId)
+    if (question) {
+      // Remove main question images
+      question.images?.forEach((img) => {
+        removeImageFromMap(img.id)
+      })
+
+      // Remove sub-question images for scenario type
+      if (question.subQuestions) {
+        question.subQuestions.forEach((subQ) => {
+          subQ.images?.forEach((img) => {
+            removeImageFromMap(img.id)
+          })
+        })
+      }
+    }
+    
+    // Then delete the question
     deleteQuestion(questionId)
   }
 

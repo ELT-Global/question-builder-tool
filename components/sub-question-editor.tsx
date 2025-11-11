@@ -41,7 +41,7 @@ export function SubQuestionEditor({
     onUpdate(updated)
   }
 
-  const updateMarks = (field: "positive" | "negative" | "partial", value: string) => {
+  const updateMarks = (field: "correct" | "wrong" | "partial", value: string) => {
     const numValue = Number.parseFloat(value) || 0
     const updated = {
       ...localSubQuestion,
@@ -112,15 +112,15 @@ export function SubQuestionEditor({
           </Select>
         </div>
 
-        {/* Sub-Question Prompt */}
+        {/* Sub-Question Text */}
         <div>
-          <Label htmlFor={`prompt-${subQuestion.id}`} className="text-sm">
+          <Label htmlFor={`question-${subQuestion.id}`} className="text-sm">
             Question Text
           </Label>
           <Textarea
-            id={`prompt-${subQuestion.id}`}
-            value={localSubQuestion.prompt}
-            onChange={(e) => updateField("prompt", e.target.value)}
+            id={`question-${subQuestion.id}`}
+            value={localSubQuestion.question}
+            onChange={(e) => updateField("question", e.target.value)}
             placeholder="Enter sub-question here..."
             rows={2}
             className="text-sm"
@@ -184,30 +184,30 @@ export function SubQuestionEditor({
         {/* Marks */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
-            <Label htmlFor={`positive-${subQuestion.id}`} className="text-sm">
-              Positive Marks<span className="text-destructive">*</span>
+            <Label htmlFor={`correct-${subQuestion.id}`} className="text-sm">
+              Correct Marks<span className="text-destructive">*</span>
             </Label>
             <Input
-              id={`positive-${subQuestion.id}`}
+              id={`correct-${subQuestion.id}`}
               type="number"
               min="0"
               step="0.5"
-              value={localSubQuestion.marks.positive}
-              onChange={(e) => updateMarks("positive", e.target.value)}
+              value={localSubQuestion.marks.correct}
+              onChange={(e) => updateMarks("correct", e.target.value)}
               className="h-9"
             />
           </div>
           <div>
-            <Label htmlFor={`negative-${subQuestion.id}`} className="text-sm">
-              Negative Marks
+            <Label htmlFor={`wrong-${subQuestion.id}`} className="text-sm">
+              Wrong Marks
             </Label>
             <Input
-              id={`negative-${subQuestion.id}`}
+              id={`wrong-${subQuestion.id}`}
               type="number"
               min="0"
               step="0.5"
-              value={localSubQuestion.marks.negative || 0}
-              onChange={(e) => updateMarks("negative", e.target.value)}
+              value={localSubQuestion.marks.wrong || 0}
+              onChange={(e) => updateMarks("wrong", e.target.value)}
               className="h-9"
             />
           </div>
@@ -230,16 +230,16 @@ export function SubQuestionEditor({
           )}
         </div>
 
-        {/* Explanation */}
+        {/* Solution */}
         <div>
-          <Label htmlFor={`explanation-${subQuestion.id}`} className="text-sm">
-            Explanation (Optional)
+          <Label htmlFor={`solution-${subQuestion.id}`} className="text-sm">
+            Solution (Optional)
           </Label>
           <Textarea
-            id={`explanation-${subQuestion.id}`}
-            value={localSubQuestion.explanation || ""}
-            onChange={(e) => updateField("explanation", e.target.value)}
-            placeholder="Add an explanation..."
+            id={`solution-${subQuestion.id}`}
+            value={localSubQuestion.solution || ""}
+            onChange={(e) => updateField("solution", e.target.value)}
+            placeholder="Add a solution..."
             rows={2}
             className="text-sm"
           />

@@ -28,10 +28,10 @@ export function useQuestionEditor({ question, onUpdate, allQuestions }: UseQuest
   // Check if question has content
   useEffect(() => {
     const hasOptions = (localQuestion.options?.length || 0) > 0
-    const hasPrompt = localQuestion.prompt.trim().length > 0
+    const hasQuestionText = localQuestion.question.trim().length > 0
     const hasSubQuestions = (localQuestion.subQuestions?.length || 0) > 0
-    setHasContent(hasOptions || hasPrompt || hasSubQuestions)
-  }, [localQuestion.options, localQuestion.prompt, localQuestion.subQuestions])
+    setHasContent(hasOptions || hasQuestionText || hasSubQuestions)
+  }, [localQuestion.options, localQuestion.question, localQuestion.subQuestions])
 
   // Update a field in the question
   const updateField = <K extends keyof Question>(field: K, value: Question[K]) => {
@@ -41,7 +41,7 @@ export function useQuestionEditor({ question, onUpdate, allQuestions }: UseQuest
   }
 
   // Update marks
-  const updateMarks = (field: "positive" | "negative" | "partial", value: string) => {
+  const updateMarks = (field: "correct" | "wrong" | "partial", value: string) => {
     const numValue = Number.parseFloat(value) || 0
     const updated = {
       ...localQuestion,
@@ -136,9 +136,9 @@ export function useQuestionEditor({ question, onUpdate, allQuestions }: UseQuest
     const subQuestions: SubQuestion[] = Array.from({ length: count }, () => ({
       id: crypto.randomUUID(),
       type: "mcq_single",
-      prompt: "",
+      question: "",
       options: [],
-      marks: { positive: 1, negative: 0, partial: 0 },
+      marks: { correct: 1, wrong: 0, partial: 0 },
     }))
     updateField("subQuestions", subQuestions)
   }
@@ -161,9 +161,9 @@ export function useQuestionEditor({ question, onUpdate, allQuestions }: UseQuest
     const resetQuestion: Question = {
       ...localQuestion,
       type: pendingType || localQuestion.type,
-      prompt: "",
+      question: "",
       options: [],
-      explanation: "",
+      solution: "",
       scenarioQuestionCount: undefined,
       subQuestions: undefined,
     }

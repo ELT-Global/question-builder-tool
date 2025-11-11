@@ -12,17 +12,17 @@ import type { QuestionType } from "@/lib/types"
 interface MarksInputProps {
   questionId: string
   questionType: QuestionType
-  positiveMarks: number
-  negativeMarks?: number
+  correctMarks: number
+  wrongMarks?: number
   partialMarks?: number
-  onUpdate: (field: "positive" | "negative" | "partial", value: string) => void
+  onUpdate: (field: "correct" | "wrong" | "partial", value: string) => void
 }
 
 export function MarksInput({
   questionId,
   questionType,
-  positiveMarks,
-  negativeMarks,
+  correctMarks,
+  wrongMarks,
   partialMarks,
   onUpdate,
 }: MarksInputProps) {
@@ -31,27 +31,27 @@ export function MarksInput({
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`positive-${questionId}`}>
-          Positive Marks<span className="text-destructive">*</span>
+        <Label htmlFor={`correct-${questionId}`}>
+          Correct Marks<span className="text-destructive">*</span>
         </Label>
         <Input
-          id={`positive-${questionId}`}
+          id={`correct-${questionId}`}
           type="number"
           min="0"
           step="0.5"
-          value={positiveMarks || ""}
-          onChange={(e) => onUpdate("positive", e.target.value)}
+          value={correctMarks || ""}
+          onChange={(e) => onUpdate("correct", e.target.value)}
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor={`negative-${questionId}`}>Negative Marks</Label>
+        <Label htmlFor={`wrong-${questionId}`}>Wrong Marks</Label>
         <Input
-          id={`negative-${questionId}`}
+          id={`wrong-${questionId}`}
           type="number"
           min="0"
           step="0.5"
-          value={negativeMarks || ""}
-          onChange={(e) => onUpdate("negative", e.target.value)}
+          value={wrongMarks || ""}
+          onChange={(e) => onUpdate("wrong", e.target.value)}
         />
       </div>
       {showPartialMarks && (

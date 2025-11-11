@@ -111,8 +111,8 @@ export function QuestionEditor({
         <QuestionPrompt
           questionId={question.id}
           questionType={localQuestion.type}
-          value={localQuestion.prompt}
-          onChange={(value) => updateField("prompt", value)}
+          value={localQuestion.question}
+          onChange={(value) => updateField("question", value)}
         />
 
         {/* Scenario Sub-Questions Input */}
@@ -157,8 +157,8 @@ export function QuestionEditor({
           <MarksInput
             questionId={question.id}
             questionType={localQuestion.type}
-            positiveMarks={localQuestion.marks.positive}
-            negativeMarks={localQuestion.marks.negative}
+            correctMarks={localQuestion.marks.correct}
+            wrongMarks={localQuestion.marks.wrong}
             partialMarks={localQuestion.marks.partial}
             onUpdate={updateMarks}
           />
@@ -175,15 +175,15 @@ export function QuestionEditor({
           />
         )}
 
-        {/* Explanation - Only for non-scenario types */}
+        {/* Solution - Only for non-scenario types */}
         {!isScenario && (
           <div>
-            <Label htmlFor={`explanation-${question.id}`}>Explanation (Optional)</Label>
+            <Label htmlFor={`solution-${question.id}`}>Solution (Optional)</Label>
             <Textarea
-              id={`explanation-${question.id}`}
-              value={localQuestion.explanation || ""}
-              onChange={(e) => updateField("explanation", e.target.value)}
-              placeholder="Add an explanation for the answer..."
+              id={`solution-${question.id}`}
+              value={localQuestion.solution || ""}
+              onChange={(e) => updateField("solution", e.target.value)}
+              placeholder="Add a solution for the answer..."
               rows={2}
             />
           </div>

@@ -61,12 +61,12 @@ export function canAddImages(currentCount: number): boolean {
  * Validate if a question has required fields filled
  */
 export function hasRequiredFields(question: Question): boolean {
-  if (!question.prompt.trim()) return false
+  if (!question.question.trim()) return false
 
   if (isMCQType(question.type)) {
     if (!question.options || question.options.length === 0) return false
     if (!question.options.some((opt) => opt.correct)) return false
-    if (question.marks.positive <= 0) return false
+    if (question.marks.correct <= 0) return false
   }
 
   if (isScenarioType(question.type)) {
@@ -102,7 +102,7 @@ export function getImageCount(question: Question): number {
  */
 export function hasQuestionContent(question: Question): boolean {
   const hasOptions = getOptionCount(question) > 0
-  const hasPrompt = question.prompt.trim().length > 0
+  const hasQuestionText = question.question.trim().length > 0
   const hasSubQuestions = getSubQuestionCount(question) > 0
-  return hasOptions || hasPrompt || hasSubQuestions
+  return hasOptions || hasQuestionText || hasSubQuestions
 }
