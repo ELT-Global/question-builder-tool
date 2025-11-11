@@ -24,8 +24,24 @@ export function useQuestions() {
     }
   }, [questions, title])
 
+  // Calculate total question count (including sub-questions in scenarios)
+  const getTotalQuestionCount = useCallback((questionsList: Question[]) => {
+    return questionsList.reduce((total, question) => {
+      if (question.type === "scenario" && question.subQuestions) {
+        return total + question.subQuestions.length
+      }
+      return total + 1
+    }, 0)
+  }, [])
+
   // Create new question
   const createQuestion = useCallback(() => {
+    const currentTotal = getTotalQuestionCount(questions)
+    if (currentTotal >= 100) {
+      alert("You have reached the maximum limit of 100 questions. Please remove some questions before adding more.")
+      return false
+    }
+
     const newQuestion: Question = {
       id: crypto.randomUUID(),
       type: "mcq_single",
@@ -40,7 +56,8 @@ export function useQuestions() {
     }
 
     setQuestions((prev) => [...prev, newQuestion])
-  }, [])
+    return true
+  }, [questions, getTotalQuestionCount])
 
   // Update existing question
   const updateQuestion = useCallback((updated: Question) => {
@@ -81,5 +98,6 @@ export function useQuestions() {
     clearAll,
     replaceAllQuestions,
     updateTitle,
+    getTotalQuestionCount,
   }
 }

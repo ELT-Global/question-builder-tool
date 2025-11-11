@@ -35,6 +35,8 @@ interface QuestionEditorProps {
   onImagesAdd: (imageMetaWithFiles: Array<{ meta: ImageMeta; file: File }>) => void
   onImageRemove: (questionId: string, imageId: string) => void
   imageFilesMap?: Map<string, File>
+  totalQuestionCount: number
+  allQuestions: Question[]
 }
 
 export function QuestionEditor({
@@ -44,6 +46,8 @@ export function QuestionEditor({
   onImagesAdd,
   onImageRemove,
   imageFilesMap,
+  totalQuestionCount,
+  allQuestions,
 }: QuestionEditorProps) {
   const [localQuestion, setLocalQuestion] = useState<Question>(question)
   const [hasContent, setHasContent] = useState(false)
@@ -78,12 +82,17 @@ export function QuestionEditor({
   }
 
   const addOption = () => {
+    const currentOptions = localQuestion.options || []
+    if (currentOptions.length >= 10) {
+      alert("You can only add a maximum of 10 options per question.")
+      return
+    }
     const newOption: Option = {
       id: crypto.randomUUID(),
       text: "",
       correct: false,
     }
-    const options = [...(localQuestion.options || []), newOption]
+    const options = [...currentOptions, newOption]
     updateField("options", options)
   }
 
@@ -125,6 +134,34 @@ export function QuestionEditor({
 
   const generateSubQuestions = () => {
     const count = localQuestion.scenarioQuestionCount || 0
+    if (count > 5) {
+      alert("A scenario can have a maximum of 5 sub-questions.")
+      updateField("scenarioQuestionCount", 5)
+      return
+    }
+
+    // Calculate total questions excluding current scenario's sub-questions
+    const otherQuestionsTotal = allQuestions.reduce((total, q) => {
+      if (q.id === question.id) {
+        // Skip current question
+        return total
+      }
+      if (q.type === "scenario" && q.subQuestions) {
+        return total + q.subQuestions.length
+      }
+      return total + 1
+    }, 0)
+
+    const newTotal = otherQuestionsTotal + count
+
+    if (newTotal > 100) {
+      const maxAllowed = 100 - otherQuestionsTotal
+      alert(
+        `Adding ${count} sub-questions would exceed the maximum limit of 100 total questions. You can add a maximum of ${maxAllowed} sub-questions to stay within the limit.`
+      )
+      return
+    }
+
     const subQuestions: SubQuestion[] = Array.from({ length: count }, () => ({
       id: crypto.randomUUID(),
       type: "mcq_single",
@@ -230,16 +267,19 @@ export function QuestionEditor({
 
         {isScenario && (
           <div>
-            <Label htmlFor={`scenario-count-${question.id}`}>Number of Questions in Scenario</Label>
+            <Label htmlFor={`scenario-count-${question.id}`}>
+              Number of Questions in Scenario{" "}
+              <span className="ml-1 text-xs text-muted-foreground">(Max: 5)</span>
+            </Label>
             <div className="flex gap-2">
               <Input
                 id={`scenario-count-${question.id}`}
                 type="number"
                 min="1"
-                max="10"
+                max="5"
                 value={localQuestion.scenarioQuestionCount || ""}
                 onChange={(e) => updateField("scenarioQuestionCount", Number.parseInt(e.target.value) || undefined)}
-                placeholder="Enter number of questions"
+                placeholder="Enter number of questions (max 5)"
                 className="flex-1"
               />
               <Button
@@ -265,8 +305,17 @@ export function QuestionEditor({
                     Select correct answers by checking the boxes
                   </div>
                 </div>
+                <span className="text-xs text-muted-foreground">
+                  ({localQuestion.options?.length || 0}/10)
+                </span>
               </div>
-              <Button type="button" variant="outline" size="sm" onClick={addOption}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={addOption}
+                disabled={(localQuestion.options?.length || 0) >= 10}
+              >
                 <Plus className="mr-2 h-4 w-4" />
                 Add Option
               </Button>
@@ -303,9 +352,6 @@ export function QuestionEditor({
                 index={index}
                 onUpdate={updateSubQuestion}
                 onDelete={deleteSubQuestion}
-                onImagesAdd={onImagesAdd}
-                onImageRemove={onImageRemove}
-                imageFilesMap={imageFilesMap}
               />
             ))}
           </div>
@@ -354,13 +400,14 @@ export function QuestionEditor({
           </div>
         )}
 
-        {/* Images - Only for non-scenario types */}
-        {!isScenario && (
+        {/* Images - Only for scenario types */}
+        {isScenario && (
           <ImageUploader
             images={localQuestion.images || []}
             onImagesChange={handleImagesChange}
             onImageRemove={(imageId) => onImageRemove(question.id, imageId)}
             imageFiles={imageFilesMap}
+            maxImages={2}
           />
         )}
 

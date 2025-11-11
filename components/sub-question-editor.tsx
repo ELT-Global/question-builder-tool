@@ -12,19 +12,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import type { ImageMeta, Option, SubQuestion } from "@/lib/types"
+import type { Option, SubQuestion } from "@/lib/types"
 import { Info, Plus, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { ImageUploader } from "./image-uploader"
 
 interface SubQuestionEditorProps {
   subQuestion: SubQuestion
   index: number
   onUpdate: (subQuestion: SubQuestion) => void
   onDelete: (subQuestionId: string) => void
-  onImagesAdd: (imageMetaWithFiles: Array<{ meta: ImageMeta; file: File }>) => void
-  onImageRemove: (subQuestionId: string, imageId: string) => void
-  imageFilesMap?: Map<string, File>
 }
 
 export function SubQuestionEditor({
@@ -32,9 +28,6 @@ export function SubQuestionEditor({
   index,
   onUpdate,
   onDelete,
-  onImagesAdd,
-  onImageRemove,
-  imageFilesMap,
 }: SubQuestionEditorProps) {
   const [localSubQuestion, setLocalSubQuestion] = useState<SubQuestion>(subQuestion)
 
@@ -59,6 +52,10 @@ export function SubQuestionEditor({
   }
 
   const addOption = () => {
+    if (localSubQuestion.options.length >= 10) {
+      alert("You can only add a maximum of 10 options per question.")
+      return
+    }
     const newOption: Option = {
       id: crypto.randomUUID(),
       text: "",
@@ -84,22 +81,6 @@ export function SubQuestionEditor({
   const removeOption = (optionId: string) => {
     const options = localSubQuestion.options.filter((opt) => opt.id !== optionId)
     updateField("options", options)
-  }
-
-  const handleImagesChange = (newImages: ImageMeta[], files: File[]) => {
-    const imageMetaWithFiles = newImages.map((meta, index) => ({
-      meta,
-      file: files[index],
-    }))
-
-    const updated = {
-      ...localSubQuestion,
-      images: [...(localSubQuestion.images || []), ...newImages],
-    }
-
-    setLocalSubQuestion(updated)
-    onUpdate(updated)
-    onImagesAdd(imageMetaWithFiles)
   }
 
   return (
@@ -157,12 +138,16 @@ export function SubQuestionEditor({
                   Select correct answers by checking the boxes
                 </div>
               </div>
+              <span className="text-xs text-muted-foreground">
+                ({localSubQuestion.options.length}/10)
+              </span>
             </div>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={addOption}
+              disabled={localSubQuestion.options.length >= 10}
               className="h-8 text-xs bg-transparent"
             >
               <Plus className="mr-1 h-3 w-3" />
@@ -244,14 +229,6 @@ export function SubQuestionEditor({
             </div>
           )}
         </div>
-
-        {/* Images */}
-        <ImageUploader
-          images={localSubQuestion.images || []}
-          onImagesChange={handleImagesChange}
-          onImageRemove={(imageId) => onImageRemove(subQuestion.id, imageId)}
-          imageFiles={imageFilesMap}
-        />
 
         {/* Explanation */}
         <div>
