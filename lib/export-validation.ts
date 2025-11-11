@@ -129,14 +129,14 @@ function validateMarks(
     })
   }
 
-  // Negative marks should not be positive
-  if (marks.negative && marks.negative > 0) {
+  // Negative marks should be 0 or positive value (not negative)
+  if (marks.negative && marks.negative < 0) {
     errors.push({
       questionIndex,
       questionId,
       questionType,
       field: "Negative Marks",
-      message: "Negative marks should be 0 or negative value",
+      message: "Negative marks should be 0 or positive value",
       subQuestionIndex,
     })
   }
