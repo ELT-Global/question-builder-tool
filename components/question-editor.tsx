@@ -177,7 +177,7 @@ export function QuestionEditor({
 
         {/* Solution - Only for non-scenario types */}
         {!isScenario && (
-          <div>
+          <div className="flex flex-col gap-2">
             <Label htmlFor={`solution-${question.id}`}>Solution (Optional)</Label>
             <Textarea
               id={`solution-${question.id}`}

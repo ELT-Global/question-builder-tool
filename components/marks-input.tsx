@@ -32,7 +32,7 @@ export function MarksInput({
     <div className="grid gap-4 sm:grid-cols-3">
       <div className="flex flex-col gap-2">
         <Label htmlFor={`correct-${questionId}`}>
-          Correct Marks<span className="text-destructive">*</span>
+            Marks<span className="text-destructive">*</span>
         </Label>
         <Input
           id={`correct-${questionId}`}

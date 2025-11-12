@@ -7,15 +7,15 @@
 
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog"
 import type { ImportState } from "@/lib/types"
 import { AlertCircle, CheckCircle2, FileArchive, Upload, X } from "lucide-react"
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ImportProgress } from "./import-progress"
 
 interface ImportModalProps {
@@ -36,6 +36,23 @@ export function ImportModal({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(pendingFile)
+
+  // Reset selectedFile when modal opens or closes
+  useEffect(() => {
+    if (open) {
+      setSelectedFile(pendingFile)
+    } else {
+      // Clear selected file when modal closes
+      setSelectedFile(null)
+    }
+  }, [open, pendingFile])
+
+  // Clear file input when modal closes
+  useEffect(() => {
+    if (!open && fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }, [open])
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file)
@@ -80,6 +97,9 @@ export function ImportModal({
 
   const handleCancel = () => {
     setSelectedFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
     onOpenChange(false)
   }
 
