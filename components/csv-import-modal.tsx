@@ -30,7 +30,7 @@ import { useCSVImportState } from "@/hooks/use-csv-import"
 import type { Question } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { CheckCircle2, FileSpreadsheet, Link2 } from "lucide-react"
-import { useCallback, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 
 interface CSVImportModalProps {
   open: boolean
@@ -49,6 +49,16 @@ export function CSVImportModal({ open, onOpenChange, onImport }: CSVImportModalP
     processCSVFile,
     processGoogleSheetsUrl,
   } = useCSVImportState()
+
+  // Reset state when modal opens (fresh start each time)
+  useEffect(() => {
+    if (open) {
+      resetState()
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""
+      }
+    }
+  }, [open, resetState])
 
   // File input handlers
   const handleFileInputChange = useCallback(
@@ -79,8 +89,23 @@ export function CSVImportModal({ open, onOpenChange, onImport }: CSVImportModalP
     onOpenChange(false)
   }, [resetState, onOpenChange])
 
+  // Handle modal close - reset state when closing
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      if (!isOpen) {
+        // Clear state when modal closes
+        resetState()
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+      }
+      onOpenChange(isOpen)
+    },
+    [resetState, onOpenChange]
+  )
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className={cn("w-full", state.showPreview ? "md:max-w-7xl" : "sm:max-w-md")}>
         <DialogHeader>
           <DialogTitle>Import Questions from CSV</DialogTitle>
