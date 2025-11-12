@@ -164,16 +164,14 @@ export function QuestionEditor({
           />
         )}
 
-        {/* Images - Only for scenario types */}
-        {isScenario && (
-          <ImageUploader
-            images={localQuestion.images || []}
-            onImagesChange={handleImageUpdate}
-            onImageRemove={(imageId) => onImageRemove(question.id, imageId)}
-            imageFiles={imageFilesMap}
-            maxImages={2}
-          />
-        )}
+        {/* Images - For all question types */}
+        <ImageUploader
+          images={localQuestion.images || []}
+          onImagesChange={handleImageUpdate}
+          onImageRemove={(imageId) => onImageRemove(question.id, imageId)}
+          imageFiles={imageFilesMap}
+          maxImages={2}
+        />
 
         {/* Solution - Only for non-scenario types */}
         {!isScenario && (
