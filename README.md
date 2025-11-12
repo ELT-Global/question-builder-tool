@@ -1,6 +1,6 @@
 # Question Authoring & ZIP Export App
 
-A production-ready Next.js application for creating structured exam questions with image uploads and ZIP export functionality.
+A Web application for creating structured exam questions with image uploads and ZIP export functionality.
 
 ## Features
 
@@ -37,13 +37,13 @@ A production-ready Next.js application for creating structured exam questions wi
 
 \`\`\`bash
 # Install dependencies
-npm install
+pnpm install
 
 # Run development server
-npm run dev
+pnpm run dev
 
 # Build for production
-npm run build
+pnpm run build
 \`\`\`
 
 ## Usage

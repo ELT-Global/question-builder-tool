@@ -205,7 +205,7 @@ export default function QuestionAuthoringPage() {
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex flex-col">
-                {/* <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} /> */}
+                <Image src="triple-i-logo.svg" alt="Triple i Logo" width={150} height={150} />
                 <p className="m-0 p-0 text-xs text-muted-foreground">Create and export exam questions</p>
               </div>
             </div>
