@@ -80,6 +80,19 @@ export default function QuestionAuthoringPage() {
   } = useImport({
     existingQuestions: questions,
     onImportComplete: (importedQuestions, importedImages, importedTitle) => {
+      // Calculate total questions in import
+      const importTotal = getTotalQuestionCount(importedQuestions)
+      
+      // For ZIP import, we replace all questions, so just check if import exceeds 100
+      if (importTotal > 100) {
+        alert(
+          `Cannot import ZIP file. The file contains ${importTotal} questions, which exceeds the maximum limit of 100 questions.\n\n` +
+          `Please reduce the number of questions in the ZIP file before importing.`
+        )
+        setIsImportModalOpen(false)
+        return
+      }
+
       replaceAllImages(importedImages).then(() => {
         replaceAllQuestions(importedQuestions, importedTitle)
       })
@@ -165,6 +178,21 @@ export default function QuestionAuthoringPage() {
 
   // Handle CSV import completion
   const handleCSVImportComplete = (importedQuestions: Question[]) => {
+    const currentTotal = getTotalQuestionCount(questions)
+    const importTotal = getTotalQuestionCount(importedQuestions)
+    const newTotal = currentTotal + importTotal
+
+    // Validate 100 question limit
+    if (newTotal > 100) {
+      const remainingSpace = 100 - currentTotal
+      alert(
+        `Cannot import ${importTotal} questions. You currently have ${currentTotal} questions.\n\n` +
+        `Maximum limit is 100 questions. You can only import ${remainingSpace} more question${remainingSpace === 1 ? '' : 's'}.\n\n` +
+        `Please remove some existing questions or reduce the number of questions in your CSV file.`
+      )
+      return
+    }
+
     addQuestions(importedQuestions)
     setIsCSVImportModalOpen(false)
   }

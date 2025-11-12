@@ -1,4 +1,0 @@
-question,Correct_Option_Indexes,Option_1_Text,Option_2_Text,Option_3_Text,Option_4_Text,correct_answer-mark,wrong_answer-mark,partial_answer-mark,solution
-"Which of the following are assets in a company's balance sheet?","1,3,4",Cash,Accounts Payable,Inventory,Equipment,3,1,1,"Cash, inventory, and equipment represent resources owned by the company."
-"What is the capital of France?",2,London,Paris,Berlin,Rome,3,1,0,"Paris is the capital of France."
-"Which programming languages are statically typed?","1,3",Java,Python,C++,JavaScript,2,0,1,"Java and C++ are statically typed languages that require variable type declarations."
