@@ -7,8 +7,8 @@ export type QuestionType = "mcq_single" | "mcq_multiple" | "scenario"
 
 // Marks structure for scoring
 export interface Marks {
-  positive: number
-  negative?: number
+  correct: number
+  wrong?: number
   partial?: number // Only for mcq_single
 }
 
@@ -30,22 +30,22 @@ export interface ImageMeta {
 export interface SubQuestion {
   id: string
   type: "mcq_single" | "mcq_multiple"
-  prompt: string
+  question: string
   options: Option[]
   marks: Marks
   images?: ImageMeta[]
-  explanation?: string
+  solution?: string
 }
 
 // Complete question structure
 export interface Question {
   id: string
   type: QuestionType
-  prompt: string
+  question: string
   options?: Option[] // Only for MCQ types
   marks: Marks
   images?: ImageMeta[]
-  explanation?: string
+  solution?: string
   scenarioQuestionCount?: number // How many sub-questions to add in scenario
   subQuestions?: SubQuestion[] // Sub-questions for scenario type
 }

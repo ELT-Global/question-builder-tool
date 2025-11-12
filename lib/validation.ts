@@ -7,8 +7,8 @@ import { z } from "zod"
 
 // Marks validation schema
 export const marksSchema = z.object({
-  positive: z.number().min(0, "Positive marks must be >= 0"),
-  negative: z.number().min(0, "Negative marks must be >= 0").optional(),
+  correct: z.number().min(0, "Correct marks must be >= 0"),
+  wrong: z.number().min(0, "Wrong marks must be >= 0").optional(),
   partial: z.number().min(0, "Partial marks must be >= 0").optional(),
 })
 
@@ -30,21 +30,21 @@ export const imageMetaSchema = z.object({
 export const subQuestionSchema = z.object({
   id: z.string(),
   type: z.enum(["mcq_single", "mcq_multiple"]),
-  prompt: z.string().min(1, "Question prompt is required"),
+  question: z.string().min(1, "Question text is required"),
   options: z.array(optionSchema),
   marks: marksSchema,
   images: z.array(imageMetaSchema).optional(),
-  explanation: z.string().optional(),
+  solution: z.string().optional(),
 })
 
 export const questionSchema = z.object({
   id: z.string(),
   type: z.enum(["mcq_single", "mcq_multiple", "scenario"]),
-  prompt: z.string().min(1, "Question prompt is required"),
+  question: z.string().min(1, "Question text is required"),
   options: z.array(optionSchema).optional(),
   marks: marksSchema,
   images: z.array(imageMetaSchema).optional(),
-  explanation: z.string().optional(),
+  solution: z.string().optional(),
   scenarioQuestionCount: z.number().optional(),
   subQuestions: z.array(subQuestionSchema).optional(),
 })

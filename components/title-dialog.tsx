@@ -7,12 +7,12 @@
 
 import { Button } from "@/components/ui/button"
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,11 +41,8 @@ export function TitleDialog({
   }, [initialTitle, open])
 
   const handleSave = () => {
-    onSave(title.trim())
-    onOpenChange(false)
-  }
-
-  const handleSkip = () => {
+    const finalTitle = title.trim() || "Section 1"
+    onSave(finalTitle)
     onOpenChange(false)
   }
 
@@ -71,9 +68,9 @@ export function TitleDialog({
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Math Quiz, Science Test, etc."
+              placeholder='e.g., Math Quiz, Science Test (default: "Section 1")'
               onKeyDown={(e) => {
-                if (e.key === "Enter" && title.trim()) {
+                if (e.key === "Enter") {
                   handleSave()
                 }
               }}
@@ -82,12 +79,7 @@ export function TitleDialog({
         </div>
 
         <DialogFooter>
-          {/* {isFirstQuestion && (
-            <Button variant="outline" onClick={handleSkip}>
-              Skip for Now
-            </Button>
-          )} */}
-          <Button onClick={handleSave} disabled={!title.trim()}>
+          <Button onClick={handleSave}>
             {isFirstQuestion ? "Save Title" : "Update"}
           </Button>
         </DialogFooter>

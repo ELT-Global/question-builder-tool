@@ -4,6 +4,7 @@
  */
 
 import JSZip from "jszip"
+import { isOldDataFormat, migrateQuestions } from "./migrate-data"
 import type { ExportData, ImageMeta, ImportValidationResult, Question } from "./types"
 import { exportDataSchema } from "./validation"
 
@@ -71,8 +72,25 @@ export async function validateQuestionsJSON(zip: JSZip): Promise<{
       return { valid: false, errors }
     }
 
+    // Check if data needs migration
+    const data = parsedData as any
+    let dataToValidate = data
+    
+    if (data.questions && data.questions.length > 0) {
+      const needsMigration = data.questions.some((q: any) => isOldDataFormat(q))
+      
+      if (needsMigration) {
+        console.log("🔄 Migrating imported data from old format to new format...")
+        dataToValidate = {
+          ...data,
+          questions: migrateQuestions(data.questions),
+        }
+        console.log("✅ Migration complete:", dataToValidate.questions.length, "questions migrated")
+      }
+    }
+
     // Validate against schema
-    const result = exportDataSchema.safeParse(parsedData)
+    const result = exportDataSchema.safeParse(dataToValidate)
     if (!result.success) {
       errors.push("Invalid data structure in questions.json")
       for (const err of result.error.errors) {

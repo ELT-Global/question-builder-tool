@@ -1,5 +1,6 @@
 "use client"
 
+import { CSVImportModal } from "@/components/csv-import-modal"
 import { ExportModal } from "@/components/export-modal"
 import { ImportConfirmationDialog } from "@/components/import-confirmation-dialog"
 import { ImportModal } from "@/components/import-modal"
@@ -16,11 +17,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ValidationErrorsDialog } from "@/components/validation-errors-dialog"
+import { useCSVImport } from "@/hooks/use-csv-import"
 import { useExport } from "@/hooks/use-export"
 import { useImageFiles } from "@/hooks/use-image-files"
 import { useImport } from "@/hooks/use-import"
 import { useQuestions } from "@/hooks/use-questions"
-import { Download, Edit2, FileText, Plus, Trash2, Upload } from "lucide-react"
+import type { Question } from "@/lib/types"
+import { ChevronDown, Download, Edit2, FileSpreadsheet, FileText, Plus, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
@@ -33,13 +43,16 @@ export default function QuestionAuthoringPage() {
     deleteQuestion,
     clearAll,
     replaceAllQuestions,
+    addQuestions,
     updateTitle,
+    getTotalQuestionCount,
   } = useQuestions()
+
+  const totalQuestionCount = getTotalQuestionCount(questions)
   const {
     imageFilesMap,
     addImagesToMap,
     removeImageFromMap,
-    removeImagesForQuestion,
     clearAllImages,
     replaceAllImages,
     isLoadingImages,
@@ -49,8 +62,10 @@ export default function QuestionAuthoringPage() {
   const [isClearAllDialogOpen, setIsClearAllDialogOpen] = useState(false)
   const [isTitleDialogOpen, setIsTitleDialogOpen] = useState(false)
   const [showTitlePrompt, setShowTitlePrompt] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<any[]>([])
+  const [showValidationDialog, setShowValidationDialog] = useState(false)
 
-  // Import hook
+  // ZIP Import hook
   const {
     isImportModalOpen,
     setIsImportModalOpen,
@@ -71,6 +86,9 @@ export default function QuestionAuthoringPage() {
     },
   })
 
+  // CSV Import hook
+  const { isCSVImportModalOpen, setIsCSVImportModalOpen } = useCSVImport()
+
   // Show title prompt when creating first question
   useEffect(() => {
     if (questions.length === 1 && !title && !showTitlePrompt) {
@@ -79,9 +97,37 @@ export default function QuestionAuthoringPage() {
     }
   }, [questions.length, title, showTitlePrompt])
 
+  // Handle title dialog close - set default if closed without saving on first question
+  const handleTitleDialogClose = (open: boolean) => {
+    if (!open && showTitlePrompt && !title) {
+      // User closed the dialog on first question without setting a title
+      updateTitle("Section 1")
+      setShowTitlePrompt(false)
+    }
+    setIsTitleDialogOpen(open)
+  }
+
   // Handle question deletion with image cleanup
   const handleDeleteQuestion = (questionId: string) => {
-    removeImagesForQuestion(questionId)
+    // First, find the question to clean up its images
+    const question = questions.find((q) => q.id === questionId)
+    if (question) {
+      // Remove main question images
+      question.images?.forEach((img) => {
+        removeImageFromMap(img.id)
+      })
+
+      // Remove sub-question images for scenario type
+      if (question.subQuestions) {
+        question.subQuestions.forEach((subQ) => {
+          subQ.images?.forEach((img) => {
+            removeImageFromMap(img.id)
+          })
+        })
+      }
+    }
+    
+    // Then delete the question
     deleteQuestion(questionId)
   }
 
@@ -106,8 +152,21 @@ export default function QuestionAuthoringPage() {
 
   // Handle title save
   const handleTitleSave = (newTitle: string) => {
-    updateTitle(newTitle)
+    const finalTitle = newTitle.trim() || "Section 1"
+    updateTitle(finalTitle)
     setShowTitlePrompt(false)
+  }
+
+  // Handle validation errors from export
+  const handleValidationError = (errors: any[]) => {
+    setValidationErrors(errors)
+    setShowValidationDialog(true)
+  }
+
+  // Handle CSV import completion
+  const handleCSVImportComplete = (importedQuestions: Question[]) => {
+    addQuestions(importedQuestions)
+    setIsCSVImportModalOpen(false)
   }
 
   return (
@@ -118,7 +177,7 @@ export default function QuestionAuthoringPage() {
           <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex flex-col">
-                <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} />
+                {/* <Image src="triple-i-logo.svg" alt="Logo" width={150} height={150} /> */}
                 <p className="m-0 p-0 text-xs text-muted-foreground">Create and export exam questions</p>
               </div>
             </div>
@@ -134,10 +193,28 @@ export default function QuestionAuthoringPage() {
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear All
               </Button>
-              <Button title="Import questions from ZIP" variant="outline" size="sm" onClick={handleImportClick}>
-                <Upload className="mr-2 h-4 w-4" />
-                Import ZIP
-              </Button>
+
+              {/* Import Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button title="Import questions" variant="outline" size="sm">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleImportClick}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Import from ZIP
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsCSVImportModalOpen(true)}>
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    Import from CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 title="Download questions as ZIP"
                 variant="outline"
@@ -176,16 +253,28 @@ export default function QuestionAuthoringPage() {
                 <Trash2 className="mr-1 h-4 w-4" />
                 <span className="text-xs">Clear All</span>
               </Button>
-              <Button 
-                title="Import questions from ZIP" 
-                variant="outline" 
-                size="sm" 
-                onClick={handleImportClick}
-                className="w-full"
-              >
-                <Upload className="mr-1 h-4 w-4" />
-                <span className="text-xs">Import</span>
-              </Button>
+
+              {/* Import Dropdown Mobile */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Upload className="mr-1 h-4 w-4" />
+                    <span className="text-xs">Import</span>
+                    <ChevronDown className="ml-1 h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleImportClick}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    From ZIP
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsCSVImportModalOpen(true)}>
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    From CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 title="Download questions as ZIP"
                 variant="outline"
@@ -232,32 +321,29 @@ export default function QuestionAuthoringPage() {
           <div className="space-y-6">
             {/* Title Section */}
             <div className="flex items-center justify-between rounded-lg border bg-card p-4 shadow-sm">
-              {title ? (
-                <div className="flex items-center justify-between gap-3 flex-1">
-                  <div className="max-w-324 w-full overflow-x-auto scrollbar-thin">
-                    <p className="text-muted-foreground">Question Set Title</p>
-                    <h1 className="text-2xl font-bold">{title}</h1>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsTitleDialogOpen(true)}
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    <Edit2 className="h-4 w-4 mr-1" />
-                    Edit
-                  </Button>
+              <div className="flex items-center justify-between gap-3 flex-1">
+                <div className="max-w-324 w-full overflow-x-auto scrollbar-thin">
+                  <p className="text-muted-foreground">Question Set Title</p>
+                  <h1 className="text-2xl font-bold">{title || "Section 1"}</h1>
                 </div>
-              ) : (
                 <Button
-                  variant="outline"
+                  variant="ghost"
+                  size="sm"
                   onClick={() => setIsTitleDialogOpen(true)}
-                  className="w-full justify-start text-muted-foreground"
+                  className="text-muted-foreground hover:text-foreground"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add a title for this question set
+                  <Edit2 className="h-4 w-4 mr-1" />
+                  Edit
                 </Button>
-              )}
+              </div>
+            </div>
+
+            {/* Total Question Count */}
+            <div className="flex items-center justify-between rounded-lg border-b bg-muted/50 px-4 py-3">
+              <span className="text-sm font-medium">Total Questions</span>
+              <span className={`text-sm font-semibold ${totalQuestionCount >= 100 ? "text-destructive" : "text-foreground"}`}>
+                {totalQuestionCount} / 100
+              </span>
             </div>
 
             {/* Questions */}
@@ -270,6 +356,8 @@ export default function QuestionAuthoringPage() {
                 onImagesAdd={addImagesToMap}
                 onImageRemove={handleImageRemove}
                 imageFilesMap={imageFilesMap}
+                totalQuestionCount={totalQuestionCount}
+                allQuestions={questions}
               />
             ))}
           </div>
@@ -280,8 +368,16 @@ export default function QuestionAuthoringPage() {
         open={isExportModalOpen}
         onOpenChange={setIsExportModalOpen}
         onExport={handleExport}
+        onValidationError={handleValidationError}
+        questions={questions}
         questionCount={questions.length}
         title={title}
+      />
+
+      <ValidationErrorsDialog
+        open={showValidationDialog}
+        onOpenChange={setShowValidationDialog}
+        errors={validationErrors}
       />
 
       <ImportModal
@@ -302,9 +398,15 @@ export default function QuestionAuthoringPage() {
         existingQuestionCount={questions.length}
       />
 
+      <CSVImportModal
+        open={isCSVImportModalOpen}
+        onOpenChange={setIsCSVImportModalOpen}
+        onImport={handleCSVImportComplete}
+      />
+
       <TitleDialog
         open={isTitleDialogOpen}
-        onOpenChange={setIsTitleDialogOpen}
+        onOpenChange={handleTitleDialogClose}
         onSave={handleTitleSave}
         initialTitle={title}
         isFirstQuestion={showTitlePrompt}

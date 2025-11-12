@@ -12,19 +12,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import type { ImageMeta, Option, SubQuestion } from "@/lib/types"
+import type { Option, SubQuestion } from "@/lib/types"
 import { Info, Plus, Trash2 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { ImageUploader } from "./image-uploader"
 
 interface SubQuestionEditorProps {
   subQuestion: SubQuestion
   index: number
   onUpdate: (subQuestion: SubQuestion) => void
   onDelete: (subQuestionId: string) => void
-  onImagesAdd: (imageMetaWithFiles: Array<{ meta: ImageMeta; file: File }>) => void
-  onImageRemove: (subQuestionId: string, imageId: string) => void
-  imageFilesMap?: Map<string, File>
 }
 
 export function SubQuestionEditor({
@@ -32,9 +28,6 @@ export function SubQuestionEditor({
   index,
   onUpdate,
   onDelete,
-  onImagesAdd,
-  onImageRemove,
-  imageFilesMap,
 }: SubQuestionEditorProps) {
   const [localSubQuestion, setLocalSubQuestion] = useState<SubQuestion>(subQuestion)
 
@@ -48,7 +41,7 @@ export function SubQuestionEditor({
     onUpdate(updated)
   }
 
-  const updateMarks = (field: "positive" | "negative" | "partial", value: string) => {
+  const updateMarks = (field: "correct" | "wrong" | "partial", value: string) => {
     const numValue = Number.parseFloat(value) || 0
     const updated = {
       ...localSubQuestion,
@@ -59,6 +52,10 @@ export function SubQuestionEditor({
   }
 
   const addOption = () => {
+    if (localSubQuestion.options.length >= 10) {
+      alert("You can only add a maximum of 10 options per question.")
+      return
+    }
     const newOption: Option = {
       id: crypto.randomUUID(),
       text: "",
@@ -84,22 +81,6 @@ export function SubQuestionEditor({
   const removeOption = (optionId: string) => {
     const options = localSubQuestion.options.filter((opt) => opt.id !== optionId)
     updateField("options", options)
-  }
-
-  const handleImagesChange = (newImages: ImageMeta[], files: File[]) => {
-    const imageMetaWithFiles = newImages.map((meta, index) => ({
-      meta,
-      file: files[index],
-    }))
-
-    const updated = {
-      ...localSubQuestion,
-      images: [...(localSubQuestion.images || []), ...newImages],
-    }
-
-    setLocalSubQuestion(updated)
-    onUpdate(updated)
-    onImagesAdd(imageMetaWithFiles)
   }
 
   return (
@@ -131,15 +112,15 @@ export function SubQuestionEditor({
           </Select>
         </div>
 
-        {/* Sub-Question Prompt */}
+        {/* Sub-Question Text */}
         <div>
-          <Label htmlFor={`prompt-${subQuestion.id}`} className="text-sm">
+          <Label htmlFor={`question-${subQuestion.id}`} className="text-sm">
             Question Text
           </Label>
           <Textarea
-            id={`prompt-${subQuestion.id}`}
-            value={localSubQuestion.prompt}
-            onChange={(e) => updateField("prompt", e.target.value)}
+            id={`question-${subQuestion.id}`}
+            value={localSubQuestion.question}
+            onChange={(e) => updateField("question", e.target.value)}
             placeholder="Enter sub-question here..."
             rows={2}
             className="text-sm"
@@ -157,12 +138,16 @@ export function SubQuestionEditor({
                   Select correct answers by checking the boxes
                 </div>
               </div>
+              <span className="text-xs text-muted-foreground">
+                ({localSubQuestion.options.length}/10)
+              </span>
             </div>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={addOption}
+              disabled={localSubQuestion.options.length >= 10}
               className="h-8 text-xs bg-transparent"
             >
               <Plus className="mr-1 h-3 w-3" />
@@ -199,30 +184,30 @@ export function SubQuestionEditor({
         {/* Marks */}
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
-            <Label htmlFor={`positive-${subQuestion.id}`} className="text-sm">
-              Positive Marks<span className="text-destructive">*</span>
+            <Label htmlFor={`correct-${subQuestion.id}`} className="text-sm">
+              Correct Marks<span className="text-destructive">*</span>
             </Label>
             <Input
-              id={`positive-${subQuestion.id}`}
+              id={`correct-${subQuestion.id}`}
               type="number"
               min="0"
               step="0.5"
-              value={localSubQuestion.marks.positive}
-              onChange={(e) => updateMarks("positive", e.target.value)}
+              value={localSubQuestion.marks.correct}
+              onChange={(e) => updateMarks("correct", e.target.value)}
               className="h-9"
             />
           </div>
           <div>
-            <Label htmlFor={`negative-${subQuestion.id}`} className="text-sm">
-              Negative Marks
+            <Label htmlFor={`wrong-${subQuestion.id}`} className="text-sm">
+              Wrong Marks
             </Label>
             <Input
-              id={`negative-${subQuestion.id}`}
+              id={`wrong-${subQuestion.id}`}
               type="number"
               min="0"
               step="0.5"
-              value={localSubQuestion.marks.negative || 0}
-              onChange={(e) => updateMarks("negative", e.target.value)}
+              value={localSubQuestion.marks.wrong || 0}
+              onChange={(e) => updateMarks("wrong", e.target.value)}
               className="h-9"
             />
           </div>
@@ -245,24 +230,16 @@ export function SubQuestionEditor({
           )}
         </div>
 
-        {/* Images */}
-        <ImageUploader
-          images={localSubQuestion.images || []}
-          onImagesChange={handleImagesChange}
-          onImageRemove={(imageId) => onImageRemove(subQuestion.id, imageId)}
-          imageFiles={imageFilesMap}
-        />
-
-        {/* Explanation */}
+        {/* Solution */}
         <div>
-          <Label htmlFor={`explanation-${subQuestion.id}`} className="text-sm">
-            Explanation (Optional)
+          <Label htmlFor={`solution-${subQuestion.id}`} className="text-sm">
+            Solution (Optional)
           </Label>
           <Textarea
-            id={`explanation-${subQuestion.id}`}
-            value={localSubQuestion.explanation || ""}
-            onChange={(e) => updateField("explanation", e.target.value)}
-            placeholder="Add an explanation..."
+            id={`solution-${subQuestion.id}`}
+            value={localSubQuestion.solution || ""}
+            onChange={(e) => updateField("solution", e.target.value)}
+            placeholder="Add a solution..."
             rows={2}
             className="text-sm"
           />

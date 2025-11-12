@@ -55,12 +55,27 @@ export function useImageFiles(questions: Question[]) {
 
       setImageFilesMap((prev) => {
         const newMap = new Map(prev)
+        
+        // Remove main question images
         question.images?.forEach((img) => {
           newMap.delete(img.id)
           deleteImageFromDB(img.id).catch((error) => {
             console.error("[v0] Failed to delete image from IndexedDB:", error)
           })
         })
+
+        // Remove sub-question images for scenario type
+        if (question.subQuestions) {
+          question.subQuestions.forEach((subQ) => {
+            subQ.images?.forEach((img) => {
+              newMap.delete(img.id)
+              deleteImageFromDB(img.id).catch((error) => {
+                console.error("[v0] Failed to delete sub-question image from IndexedDB:", error)
+              })
+            })
+          })
+        }
+
         return newMap
       })
     },
