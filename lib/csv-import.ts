@@ -11,7 +11,7 @@ interface CSVRow {
   Correct_Option_Indexes?: string
   "correct_answer-mark"?: string
   "wrong_answer-mark"?: string
-  "partial_answer-mark"?: string
+  "partial-mark"?: string
   solution?: string
   [key: string]: string | undefined
 }
@@ -181,7 +181,7 @@ export function csvToQuestions(csvText: string): CSVImportResult {
         marks: {
           correct: Number(row["correct_answer-mark"]) || 1,
           wrong: Number(row["wrong_answer-mark"]) || 0,
-          partial: Number(row["partial_answer-mark"]) || 0,
+          partial: Number(row["partial-mark"]) || 0,
         },
         images: [],
         solution: row.solution || "",

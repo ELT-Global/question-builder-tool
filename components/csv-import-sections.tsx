@@ -69,7 +69,7 @@ export function CSVFormatInfo() {
           • <strong>wrong_answer-mark</strong>: Marks for wrong answer
         </li>
         <li>
-          • <strong>partial_answer-mark</strong>: Marks for partial answer (optional)
+          • <strong>partial-mark</strong>: Marks for partial answer (optional)
         </li>
         <li>
           • <strong>solution</strong>: Solution explanation (optional)

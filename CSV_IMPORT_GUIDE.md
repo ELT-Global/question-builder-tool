@@ -33,7 +33,7 @@ The CSV Import feature allows you to import multiple choice questions from CSV f
 ### Example CSV Format
 
 ```csv
-question,Correct_Option_Indexes,Option_1_Text,Option_2_Text,Option_3_Text,Option_4_Text,correct_answer-mark,wrong_answer-mark,partial_answer-mark,solution
+question,Correct_Option_Indexes,Option_1_Text,Option_2_Text,Option_3_Text,Option_4_Text,correct_answer-mark,wrong_answer-mark,partial-mark,solution
 "Which of the following are assets in a company's balance sheet?","1,3,4",Cash,Accounts Payable,Inventory,Equipment,3,1,1,"Cash, inventory, and equipment represent resources owned by the company."
 "What is the capital of France?",2,London,Paris,Berlin,Rome,3,1,0,"Paris is the capital of France."
 ```
