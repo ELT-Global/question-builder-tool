@@ -1,5 +1,6 @@
 "use client"
 
+import { CSVImportModal } from "@/components/csv-import-modal"
 import { ExportModal } from "@/components/export-modal"
 import { ImportConfirmationDialog } from "@/components/import-confirmation-dialog"
 import { ImportModal } from "@/components/import-modal"
@@ -16,12 +17,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { ValidationErrorsDialog } from "@/components/validation-errors-dialog"
+import { useCSVImport } from "@/hooks/use-csv-import"
 import { useExport } from "@/hooks/use-export"
 import { useImageFiles } from "@/hooks/use-image-files"
 import { useImport } from "@/hooks/use-import"
 import { useQuestions } from "@/hooks/use-questions"
-import { Download, Edit2, FileText, Plus, Trash2, Upload } from "lucide-react"
+import type { Question } from "@/lib/types"
+import { ChevronDown, Download, Edit2, FileSpreadsheet, FileText, Plus, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 
@@ -34,6 +43,7 @@ export default function QuestionAuthoringPage() {
     deleteQuestion,
     clearAll,
     replaceAllQuestions,
+    addQuestions,
     updateTitle,
     getTotalQuestionCount,
   } = useQuestions()
@@ -55,7 +65,7 @@ export default function QuestionAuthoringPage() {
   const [validationErrors, setValidationErrors] = useState<any[]>([])
   const [showValidationDialog, setShowValidationDialog] = useState(false)
 
-  // Import hook
+  // ZIP Import hook
   const {
     isImportModalOpen,
     setIsImportModalOpen,
@@ -75,6 +85,9 @@ export default function QuestionAuthoringPage() {
       })
     },
   })
+
+  // CSV Import hook
+  const { isCSVImportModalOpen, setIsCSVImportModalOpen } = useCSVImport()
 
   // Show title prompt when creating first question
   useEffect(() => {
@@ -150,6 +163,12 @@ export default function QuestionAuthoringPage() {
     setShowValidationDialog(true)
   }
 
+  // Handle CSV import completion
+  const handleCSVImportComplete = (importedQuestions: Question[]) => {
+    addQuestions(importedQuestions)
+    setIsCSVImportModalOpen(false)
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-backdrop-filter:bg-card/50">
@@ -174,10 +193,28 @@ export default function QuestionAuthoringPage() {
                 <Trash2 className="mr-2 h-4 w-4" />
                 Clear All
               </Button>
-              <Button title="Import questions from ZIP" variant="outline" size="sm" onClick={handleImportClick}>
-                <Upload className="mr-2 h-4 w-4" />
-                Import ZIP
-              </Button>
+
+              {/* Import Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button title="Import questions" variant="outline" size="sm">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleImportClick}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Import from ZIP
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsCSVImportModalOpen(true)}>
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    Import from CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 title="Download questions as ZIP"
                 variant="outline"
@@ -216,16 +253,28 @@ export default function QuestionAuthoringPage() {
                 <Trash2 className="mr-1 h-4 w-4" />
                 <span className="text-xs">Clear All</span>
               </Button>
-              <Button 
-                title="Import questions from ZIP" 
-                variant="outline" 
-                size="sm" 
-                onClick={handleImportClick}
-                className="w-full"
-              >
-                <Upload className="mr-1 h-4 w-4" />
-                <span className="text-xs">Import</span>
-              </Button>
+
+              {/* Import Dropdown Mobile */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Upload className="mr-1 h-4 w-4" />
+                    <span className="text-xs">Import</span>
+                    <ChevronDown className="ml-1 h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleImportClick}>
+                    <FileText className="mr-2 h-4 w-4" />
+                    From ZIP
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setIsCSVImportModalOpen(true)}>
+                    <FileSpreadsheet className="mr-2 h-4 w-4" />
+                    From CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
                 title="Download questions as ZIP"
                 variant="outline"
@@ -347,6 +396,12 @@ export default function QuestionAuthoringPage() {
         onOpenChange={setShowOverwriteWarning}
         onConfirm={confirmOverwrite}
         existingQuestionCount={questions.length}
+      />
+
+      <CSVImportModal
+        open={isCSVImportModalOpen}
+        onOpenChange={setIsCSVImportModalOpen}
+        onImport={handleCSVImportComplete}
       />
 
       <TitleDialog

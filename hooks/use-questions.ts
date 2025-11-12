@@ -92,6 +92,11 @@ export function useQuestions() {
     saveDraft(newQuestions, newTitle)
   }, [])
 
+  // Add multiple questions (used for CSV import - appends)
+  const addQuestions = useCallback((newQuestions: Question[]) => {
+    setQuestions((prev) => [...prev, ...newQuestions])
+  }, [])
+
   // Update title
   const updateTitle = useCallback((newTitle: string) => {
     setTitle(newTitle)
@@ -106,6 +111,7 @@ export function useQuestions() {
     deleteQuestion,
     clearAll,
     replaceAllQuestions,
+    addQuestions,
     updateTitle,
     getTotalQuestionCount,
   }
