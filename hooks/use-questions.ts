@@ -21,26 +21,48 @@ export function useQuestions() {
   useEffect(() => {
     if (questions.length > 0) {
       saveDraft(questions, title)
+      console.log(`💾 Draft saved: ${questions.length} questions`)
+    } else {
+      // Clear draft when no questions exist
+      clearDraft()
+      console.log("🧹 Draft cleared (no questions)")
     }
   }, [questions, title])
 
+  // Calculate total question count (including sub-questions in scenarios)
+  const getTotalQuestionCount = useCallback((questionsList: Question[]) => {
+    return questionsList.reduce((total, question) => {
+      if (question.type === "scenario" && question.subQuestions) {
+        return total + question.subQuestions.length
+      }
+      return total + 1
+    }, 0)
+  }, [])
+
   // Create new question
   const createQuestion = useCallback(() => {
+    const currentTotal = getTotalQuestionCount(questions)
+    if (currentTotal >= 100) {
+      alert("You have reached the maximum limit of 100 questions. Please remove some questions before adding more.")
+      return false
+    }
+
     const newQuestion: Question = {
       id: crypto.randomUUID(),
       type: "mcq_single",
-      prompt: "",
+      question: "",
       options: [
         { id: crypto.randomUUID(), text: "", correct: false },
         { id: crypto.randomUUID(), text: "", correct: false },
       ],
-      marks: { positive: 1, negative: 0, partial: 0 },
+      marks: { correct: 1, wrong: 0, partial: 0 },
       images: [],
-      explanation: "",
+      solution: "",
     }
 
     setQuestions((prev) => [...prev, newQuestion])
-  }, [])
+    return true
+  }, [questions, getTotalQuestionCount])
 
   // Update existing question
   const updateQuestion = useCallback((updated: Question) => {
@@ -49,7 +71,11 @@ export function useQuestions() {
 
   // Delete question
   const deleteQuestion = useCallback((questionId: string) => {
-    setQuestions((prev) => prev.filter((q) => q.id !== questionId))
+    setQuestions((prev) => {
+      const filtered = prev.filter((q) => q.id !== questionId)
+      console.log(`🗑️ Question deleted. Remaining: ${filtered.length}`)
+      return filtered
+    })
   }, [])
 
   // Clear all questions
@@ -66,6 +92,11 @@ export function useQuestions() {
     saveDraft(newQuestions, newTitle)
   }, [])
 
+  // Add multiple questions (used for CSV import - appends)
+  const addQuestions = useCallback((newQuestions: Question[]) => {
+    setQuestions((prev) => [...prev, ...newQuestions])
+  }, [])
+
   // Update title
   const updateTitle = useCallback((newTitle: string) => {
     setTitle(newTitle)
@@ -80,6 +111,8 @@ export function useQuestions() {
     deleteQuestion,
     clearAll,
     replaceAllQuestions,
+    addQuestions,
     updateTitle,
+    getTotalQuestionCount,
   }
 }

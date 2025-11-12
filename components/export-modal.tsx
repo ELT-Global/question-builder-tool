@@ -1,44 +1,56 @@
 /**
  * ExportModal Component
  * Modal dialog for entering ZIP filename before export
- * Component handles user input and triggers export
+ * Component handles user input and triggers export with validation
  */
 
 "use client"
 
 import { Button } from "@/components/ui/button"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Download } from "lucide-react"
+import type { Question } from "@/lib/types"
+import { Download, Loader2 } from "lucide-react"
 import { useEffect, useState } from "react"
 
 interface ExportModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onExport: (zipName: string) => Promise<void>
+  onValidationError: (errors: any[]) => void
+  questions: Question[]
   questionCount: number
   title?: string
 }
 
 const createSlug = (text?: string): string => {
-  if (!text) return "questions"
+  if (!text) return "section-1"
   return text.toLowerCase().replaceAll(/\s+/g, "-").replaceAll(/[^a-z0-9-]/g, "")
 }
 
-export function ExportModal({ open, onOpenChange, onExport, questionCount, title }: Readonly<ExportModalProps>) {
+export function ExportModal({
+  open,
+  onOpenChange,
+  onExport,
+  onValidationError,
+  questions,
+  questionCount,
+  title,
+}: Readonly<ExportModalProps>) {
   const [zipName, setZipName] = useState(() => {
     const date = new Date().toISOString().slice(0, 10)
     const titleSlug = createSlug(title)
     return `${titleSlug}-${date}`
   })
+  const [isValidating, setIsValidating] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
   // Update zip name when title changes
@@ -48,13 +60,35 @@ export function ExportModal({ open, onOpenChange, onExport, questionCount, title
     setZipName(`${titleSlug}-${date}`)
   }, [title, open])
 
-  // Handle export button click
+  // Handle export button click with validation
   const handleExport = async () => {
     if (!zipName.trim()) {
       alert("Please enter a ZIP filename")
       return
     }
 
+    // Start validation
+    setIsValidating(true)
+
+    // Simulate async validation with a small delay to show loading state
+    await new Promise((resolve) => setTimeout(resolve, 300))
+
+    // Import validation dynamically
+    const { validateQuestionsForExport } = await import("@/lib/export-validation")
+
+    // Validate questions
+    const validationResult = validateQuestionsForExport(questions)
+
+    setIsValidating(false)
+
+    if (!validationResult.valid) {
+      // Show validation errors
+      onValidationError(validationResult.errors)
+      onOpenChange(false)
+      return
+    }
+
+    // Proceed with export if validation passes
     setIsExporting(true)
     try {
       await onExport(zipName.trim())
@@ -66,6 +100,8 @@ export function ExportModal({ open, onOpenChange, onExport, questionCount, title
       setIsExporting(false)
     }
   }
+
+  const isLoading = isValidating || isExporting
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -94,12 +130,21 @@ export function ExportModal({ open, onOpenChange, onExport, questionCount, title
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
             Cancel
           </Button>
-          <Button onClick={handleExport} disabled={isExporting}>
-            <Download className="mr-2 h-4 w-4" />
-            {isExporting ? "Exporting..." : "Export"}
+          <Button onClick={handleExport} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isValidating ? "Validating..." : "Exporting..."}
+              </>
+            ) : (
+              <>
+                <Download className="mr-2 h-4 w-4" />
+                Export
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

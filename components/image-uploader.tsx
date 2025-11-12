@@ -8,20 +8,21 @@
 
 import type React from "react"
 
-import { useCallback, useRef, useState, useEffect } from "react"
-import { X, Upload, ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { validateImageFile } from "@/lib/validation"
 import type { ImageMeta } from "@/lib/types"
+import { validateImageFile } from "@/lib/validation"
+import { ImageIcon, Upload, X } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 interface ImageUploaderProps {
   images: ImageMeta[]
   onImagesChange: (images: ImageMeta[], files: File[]) => void
   onImageRemove: (imageId: string) => void
   imageFiles?: Map<string, File>
+  maxImages?: number
 }
 
-export function ImageUploader({ images, onImagesChange, onImageRemove, imageFiles }: ImageUploaderProps) {
+export function ImageUploader({ images, onImagesChange, onImageRemove, imageFiles, maxImages }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map())
   const urlCacheRef = useRef<Map<string, string>>(new Map())
@@ -69,6 +70,15 @@ export function ImageUploader({ images, onImagesChange, onImageRemove, imageFile
       const newImages: ImageMeta[] = []
       const newFiles: File[] = []
 
+      // Check if adding these files would exceed the max limit
+      if (maxImages && images.length + files.length > maxImages) {
+        alert(`You can only upload a maximum of ${maxImages} images. Currently you have ${images.length} image(s).`)
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""
+        }
+        return
+      }
+
       for (const file of files) {
         const validation = validateImageFile(file)
 
@@ -99,18 +109,23 @@ export function ImageUploader({ images, onImagesChange, onImageRemove, imageFile
         fileInputRef.current.value = ""
       }
     },
-    [onImagesChange],
+    [onImagesChange, maxImages, images.length],
   )
 
   const handleUploadClick = () => {
     fileInputRef.current?.click()
   }
 
+  const isMaxReached = maxImages ? images.length >= maxImages : false
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">Images (Optional)</label>
-        <Button type="button" variant="outline" size="sm" onClick={handleUploadClick}>
+        <label className="text-sm font-medium">
+          Images (Optional)
+          {maxImages && <span className="ml-1 text-xs text-muted-foreground">({images.length}/{maxImages})</span>}
+        </label>
+        <Button type="button" variant="outline" size="sm" onClick={handleUploadClick} disabled={isMaxReached}>
           <Upload className="mr-2 h-4 w-4" />
           Upload Images
         </Button>
