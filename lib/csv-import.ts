@@ -21,6 +21,7 @@ export interface CSVImportResult {
   questions?: Question[]
   error?: string
   warnings?: string[]
+  totalCount?: number
 }
 
 /**
@@ -198,7 +199,20 @@ export function csvToQuestions(csvText: string): CSVImportResult {
       }
     }
 
-    return { success: true, questions, warnings: warnings.length > 0 ? warnings : undefined }
+    // Calculate total questions including sub-questions (for future scenario support)
+    const totalCount = questions.reduce((total, q) => {
+      if (q.type === "scenario" && q.subQuestions) {
+        return total + q.subQuestions.length
+      }
+      return total + 1
+    }, 0)
+
+    return { 
+      success: true, 
+      questions, 
+      warnings: warnings.length > 0 ? warnings : undefined,
+      totalCount 
+    }
   } catch (error) {
     return {
       success: false,

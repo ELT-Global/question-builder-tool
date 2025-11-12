@@ -29,7 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCSVImportState } from "@/hooks/use-csv-import"
 import type { Question } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { CheckCircle2, FileSpreadsheet, Link2 } from "lucide-react"
+import { AlertCircle, CheckCircle2, FileSpreadsheet, Link2 } from "lucide-react"
 import { useCallback, useEffect, useRef } from "react"
 
 interface CSVImportModalProps {
@@ -118,6 +118,21 @@ export function CSVImportModal({ open, onOpenChange, onImport }: CSVImportModalP
           /* Preview Section */
           <div className="space-y-4">
             <PreviewHeader questionCount={state.previewQuestions.length} />
+            
+            {/* Warning if questions exceed limit */}
+            {state.previewQuestions.length > 100 && (
+              <div className="flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+                <AlertCircle className="h-5 w-5 shrink-0 text-destructive" />
+                <div className="flex-1">
+                  <h4 className="font-semibold text-destructive">Too Many Questions</h4>
+                  <p className="mt-1 text-sm text-destructive/90">
+                    This CSV contains {state.previewQuestions.length} questions, which exceeds the maximum limit of 100 questions.
+                    Please reduce the number of questions in your CSV file.
+                  </p>
+                </div>
+              </div>
+            )}
+            
             <WarningsDisplay warnings={state.warnings} />
             <QuestionsPreview questions={state.previewQuestions} />
           </div>
@@ -179,7 +194,10 @@ export function CSVImportModal({ open, onOpenChange, onImport }: CSVImportModalP
               <Button variant="outline" onClick={resetToInput}>
                 Back
               </Button>
-              <Button onClick={handleImport} disabled={state.previewQuestions.length === 0}>
+              <Button 
+                onClick={handleImport} 
+                disabled={state.previewQuestions.length === 0 || state.previewQuestions.length > 100}
+              >
                 <CheckCircle2 className="mr-2 h-4 w-4" />
                 Import {state.previewQuestions.length} Question
                 {state.previewQuestions.length === 1 ? "" : "s"}
