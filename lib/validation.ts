@@ -91,7 +91,7 @@ export function validateZipFile(file: File): {
 // File validation constants
 export const ALLOWED_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "gif", "webp", "svg"]
 export const ALLOWED_IMAGE_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
-export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 MB
+export const MAX_FILE_SIZE = 1 * 1024 * 1024 // 1 MB
 export const MAX_TOTAL_SIZE = 80 * 1024 * 1024 // 80 MB
 
 /**
@@ -105,7 +105,7 @@ export function validateImageFile(file: File): {
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: `File "${file.name}" is too large. Maximum size is 5 MB.`,
+      error: `File "${file.name}" is too large. Maximum size is 1 MB.`,
     }
   }
 
