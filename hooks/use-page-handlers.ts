@@ -10,7 +10,7 @@ interface UsePageHandlersProps {
   // Questions data
   questions: Question[]
   title: string
-  
+
   // Question actions
   updateQuestion: (question: Question) => void
   deleteQuestion: (questionId: string) => void
@@ -18,18 +18,18 @@ interface UsePageHandlersProps {
   clearAll: () => void
   updateTitle: (title: string) => void
   getTotalQuestionCount: (questions: Question[]) => number
-  
+
   // Image actions
   removeImageFromMap: (imageId: string) => void
   clearAllImages: () => void
-  
+
   // Modal states
   showTitlePrompt: boolean
   setShowTitlePrompt: (show: boolean) => void
   setIsTitleDialogOpen: (open: boolean) => void
   setIsClearAllDialogOpen: (open: boolean) => void
   setIsCSVImportModalOpen: (open: boolean) => void
-  
+
   // Validation
   setValidationErrors: (errors: any[]) => void
   setShowValidationDialog: (show: boolean) => void
@@ -54,7 +54,7 @@ export function usePageHandlers({
   setValidationErrors,
   setShowValidationDialog,
 }: UsePageHandlersProps) {
-  
+
   // Show title prompt when creating first question
   useEffect(() => {
     if (questions.length === 1 && !title && !showTitlePrompt) {
@@ -92,7 +92,7 @@ export function usePageHandlers({
         })
       }
     }
-    
+
     // Then delete the question
     deleteQuestion(questionId)
   }
@@ -121,6 +121,7 @@ export function usePageHandlers({
     const finalTitle = newTitle.trim() || "Section 1"
     updateTitle(finalTitle)
     setShowTitlePrompt(false)
+    setIsTitleDialogOpen(false) // Close the dialog after saving - avoids race condition
   }
 
   // Handle validation errors from export
