@@ -100,8 +100,14 @@ export function useQuestions() {
   // Update title
   const updateTitle = useCallback((newTitle: string) => {
     setTitle(newTitle)
-    saveDraft(questions, newTitle)
-  }, [questions])
+    // Use setQuestions to access current state and save draft with correct questions
+    setQuestions((currentQuestions) => {
+      if (currentQuestions.length > 0) {
+        saveDraft(currentQuestions, newTitle)
+      }
+      return currentQuestions // Return unchanged
+    })
+  }, [])
 
   return {
     questions,

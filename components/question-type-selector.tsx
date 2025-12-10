@@ -11,6 +11,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { QuestionType } from "@/lib/types"
 import { RotateCcw } from "lucide-react"
 
+interface QuestionTypeOption {
+  name: string
+  value: QuestionType
+  isDisabled: boolean
+}
+
+const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
+  { name: "Multiple Choice Question", value: "mcq_single", isDisabled: false },
+  { name: "Multiple Choice Question with Multiple Answers", value: "mcq_multiple", isDisabled: false },
+  { name: "Scenario Based", value: "scenario", isDisabled: true },
+]
+
 interface QuestionTypeSelectorProps {
   questionId: string
   value: QuestionType
@@ -42,9 +54,15 @@ export function QuestionTypeSelector({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="mcq_single">Multiple Choice Question</SelectItem>
-          <SelectItem value="mcq_multiple">Multiple Choice Question with Multiple Answers</SelectItem>
-          <SelectItem value="scenario">Scenario Based</SelectItem>
+          {QUESTION_TYPE_OPTIONS.map((option) => (
+            <SelectItem 
+              key={option.value} 
+              value={option.value} 
+              disabled={option.isDisabled}
+            >
+              {option.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

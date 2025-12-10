@@ -43,7 +43,8 @@ export function TitleDialog({
   const handleSave = () => {
     const finalTitle = title.trim() || "Section 1"
     onSave(finalTitle)
-    onOpenChange(false)
+    // Note: Don't call onOpenChange(false) here - parent's handleTitleSave will close the dialog
+    // This prevents a race condition where handleTitleDialogClose would run before state updates
   }
 
   return (
