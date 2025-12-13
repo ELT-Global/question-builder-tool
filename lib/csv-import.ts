@@ -181,7 +181,7 @@ export function csvToQuestions(csvText: string): CSVImportResult {
         options,
         marks: {
           correct: Number(row["correct_answer-mark"] || row["correct_answer_mark"]) || 1,
-          wrong: Number(row["wrong_answer-mark"] || row["wrong_answer_mark"]) || 0,
+          wrong: Math.abs(Number(row["wrong_answer-mark"] || row["wrong_answer_mark"]) || 0),
           partial: Number(row["partial-mark"] || row["partial_mark"]) || 0,
         },
         images: [],
