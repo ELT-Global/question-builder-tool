@@ -133,8 +133,8 @@ export function csvToQuestions(csvText: string): CSVImportResult {
       // Parse correct option indexes (1-based to 0-based)
       const correctIndexes = row.Correct_Option_Indexes
         ? row.Correct_Option_Indexes.split(",")
-            .map((n) => Number.parseInt(n.trim()) - 1)
-            .filter((n) => !Number.isNaN(n) && n >= 0)
+          .map((n) => Number.parseInt(n.trim()) - 1)
+          .filter((n) => !Number.isNaN(n) && n >= 0)
         : []
 
       if (correctIndexes.length === 0) {
@@ -180,9 +180,9 @@ export function csvToQuestions(csvText: string): CSVImportResult {
         question: row.question,
         options,
         marks: {
-          correct: Number(row["correct_answer-mark"]) || 1,
-          wrong: Number(row["wrong_answer-mark"]) || 0,
-          partial: Number(row["partial-mark"]) || 0,
+          correct: Number(row["correct_answer-mark"] || row["correct_answer_mark"]) || 1,
+          wrong: Number(row["wrong_answer-mark"] || row["wrong_answer_mark"]) || 0,
+          partial: Number(row["partial-mark"] || row["partial_mark"]) || 0,
         },
         images: [],
         solution: row.solution || "",
@@ -207,11 +207,11 @@ export function csvToQuestions(csvText: string): CSVImportResult {
       return total + 1
     }, 0)
 
-    return { 
-      success: true, 
-      questions, 
+    return {
+      success: true,
+      questions,
       warnings: warnings.length > 0 ? warnings : undefined,
-      totalCount 
+      totalCount
     }
   } catch (error) {
     return {
